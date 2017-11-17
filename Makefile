@@ -6,7 +6,7 @@ OBJ = $(SRC:.c=.o)
 all: catdig
 
 catdig: $(OBJ)
-	$(CC) -o bin/$@ $(OBJ)
+	mkdir bin/ | $(CC) -o bin/$@ $(OBJ)
 
 $(ID): $(ID).c
 	$(CC) $(CFLAGS) -o $@ $< $(LIBS)
