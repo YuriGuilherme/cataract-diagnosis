@@ -3,21 +3,16 @@
 
 #include "catdig.h"
 
-int main(void){
+int main(int argc, char* argv[]) {
 
-	char x;
-	FILE *fotoin;
-	fotoin = fopen ("Catarata.ppm", "r");
-	if (fotoin == NULL) 
-	 {
-	 	printf("Erro na abertura do aquivo!\n");
-	 }
-	 else
-	{
-		fscanf(fotoin, &x);
-		printf("%d\n", x);
-		fclose(fotoin);
-	} 	
-	
+  PPM *image = openFile(argv[2]);
+  if (image == NULL) {
+    printf("Arquivo não é um PPM P3 ou não existe");
+    return 1;
+  }
+
+  savePPMInFile("bin/output.ppm", image);
+
+  cleanPPM(image);
   return 0;
 }
