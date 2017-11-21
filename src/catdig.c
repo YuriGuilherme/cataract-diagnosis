@@ -68,3 +68,17 @@ PPM *openFile(const char *file_name) {
 }
 
 /* Adiciona-se então 30% do vermelho mais 59% do verde mais 11% do azul*/
+
+
+void colorToGrayscale(PPM * ppm) {
+    int x;
+    int brightness;
+    for(x = 0; x < (ppm->height * ppm->width); x++) {
+        Pixel *p = &(ppm->pixels[x]);
+        brightness = (int) (p->red * 0.3) + (p->green * 0.59) + (p->blue * 0.11);
+        p->red = brightness;
+        p->green = brightness;
+        p->blue = brightness;
+    }
+}
+

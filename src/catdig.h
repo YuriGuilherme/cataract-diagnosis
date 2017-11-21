@@ -19,6 +19,7 @@ PPM *newPPM(char * comment, int width, int heigth, int maxColor);
 void cleanPPM(PPM * ppm);
 void savePPMInFile(const char *file_name, PPM *ppm);
 
+void colorToGrayscale(PPM * ppm) ;
 PPM *openFile(const char *file_name);
 
 #endif /* CATDIG_H */

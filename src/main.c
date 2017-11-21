@@ -11,7 +11,10 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  savePPMInFile("bin/output.ppm", image);
+  savePPMInFile("bin/normal.ppm", image);
+
+  colorToGrayscale(image);
+  savePPMInFile("bin/cinza.ppm", image);
 
   cleanPPM(image);
   return 0;
