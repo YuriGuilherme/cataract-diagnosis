@@ -81,3 +81,64 @@ void colorToGrayscale(PPM * ppm) {
     }
 }
 
+Pixel * image_read_pixel(PPM * ppm, int x) {
+    if( x >= (ppm->height * ppm->width) ) x = (ppm->height * ppm->width) - 1;
+    if( x < 0 ) x = 0;
+
+    return &ppm->pixels[x];
+}
+
+PPM * ppmGaussianSmoothFilter( PPM * ppm ) {
+    int x, y, col, row, newpx;
+    Pixel * px;
+    int sum, div;
+
+    int kernel[25] = {2,  4,  5,  4, 2,\
+                      4,  9, 12,  9, 4,\
+                      5, 12, 15, 12, 5,\
+                      4,  9, 12,  9, 4,\
+                      2,  4,  5,  4, 2};
+
+    /* Debug */
+    printf( "Filtrando Imagem: tipo=P3; width=%d; height=%d\n", ppm->width, ppm->height );
+
+    PPM * newimg = newPPM( ppm->comment ,ppm->width, ppm->height, ppm->maxColor );
+
+    for(col = 0; col < (ppm->height * ppm->width); col++) {
+        sum = 0;
+        div = 0;
+
+        for(x = 0; x < 25; x++) {
+            px = image_read_pixel( ppm,  (col + ((x - ((2 * ppm->width)+2)))));
+            sum += ( px->red *  kernel[x] );
+            div += kernel[x];
+        }
+
+        newpx = (int) sum / div;
+
+        newimg->pixels[col].red = newpx;
+        newimg->pixels[col].green = newpx;
+        newimg->pixels[col].blue = newpx;
+    }
+
+    return newimg;
+}
+
+PPM * realceArestas(PPM * ppm) {
+  PPM * newppm = newPPM(ppm->comment, ppm->width, ppm->height, ppm->maxColor);
+  int x;
+  for (x = 0; x < (ppm->height * ppm->width); x++) {
+    Pixel *p = &(ppm->pixels[x]);
+    if (p->red < 130) {
+      newppm->pixels[x].red = 0;
+      newppm->pixels[x].green = 0;
+      newppm->pixels[x].blue = 0;
+    } else {
+      newppm->pixels[x].red = 1;
+      newppm->pixels[x].green = 1;
+      newppm->pixels[x].blue = 1;
+    }
+    newppm->maxColor = 1;
+  }
+    return newppm;
+}
