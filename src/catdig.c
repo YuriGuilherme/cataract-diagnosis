@@ -12,7 +12,6 @@ PPM *newPPM(char * comment, int width, int height, int maxColor) {
     ppm->width = width;
     ppm->height = height;
     ppm->maxColor = maxColor;
-    printf(ppm->comment);
     return ppm;
 }
 
@@ -23,7 +22,7 @@ void cleanPPM(PPM * ppm) {
 
 void savePPMInFile(const char *file_name, PPM *ppm) {
     FILE * file = fopen(file_name, "w+");
-    fprintf(file, "P3\n%s\n%d %d\n%d", ppm->comment, ppm->width, ppm->height, ppm->maxColor);
+    fprintf(file, "P3\n%d %d\n%d", ppm->width, ppm->height, ppm->maxColor);
 
     int x;
     printf(ppm->comment);
@@ -34,14 +33,14 @@ void savePPMInFile(const char *file_name, PPM *ppm) {
 }
 
 PPM *openFile(const char *file_name) {
-    
+
     FILE *file = fopen(file_name, "r");
 
     if (file == NULL) return NULL;
-    
+
     char format[4];
     fscanf(file, "%s\n", format);
-    
+
     if (strcmp("P3", format) == 0) {
 
         int width, height, maxColor;
