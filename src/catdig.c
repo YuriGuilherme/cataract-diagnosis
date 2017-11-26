@@ -15,12 +15,12 @@ PPM *newPPM(char * comment, int width, int height, int maxColor) {
     return ppm;
 }
 
-void cleanPPM(PPM * ppm) {
+void cleanPPM(PPM * ppm) { // Desaloca os ponteiros ppm e variável responsável usando o "free".
     free(ppm->pixels);
     free(ppm);
 }
 
-void savePPMInFile(const char *file_name, PPM *ppm) {
+void savePPMInFile(const char *file_name, PPM *ppm) { //Joga seus valores no arquivo 'file' ordenadamente na sequencia RGB. 
     FILE * file = fopen(file_name, "w+");
     fprintf(file, "P3\n%d %d\n%d", ppm->width, ppm->height, ppm->maxColor);
 
@@ -32,11 +32,15 @@ void savePPMInFile(const char *file_name, PPM *ppm) {
     }
 }
 
-PPM *openFile(const char *file_name) {
+PPM *openFile(const char *file_name) { 
+
+/* Processo de abertura e leitura da foto propriamente dita. 
+Essa função lê cada dado da foto e aplica na struct PPM criada no ínicio. */
 
     FILE *file = fopen(file_name, "r");
 
-    if (file == NULL) return NULL;
+
+    if (file == NULL) return NULL; // Processo de debug da abertura do arquivo.
 
     char format[4];
     fscanf(file, "%s\n", format);
@@ -66,10 +70,12 @@ PPM *openFile(const char *file_name) {
     return NULL;
 }
 
-/* Adiciona-se então 30% do vermelho mais 59% do verde mais 11% do azul*/
 
 
 void colorToGrayscale(PPM * ppm) {
+
+/* Adiciona a cada variável da struct as diretrizes para transfomar o arquivo em escala de cinza. +30% R, + %59 G, %11 B.*/
+
     int x;
     int brightness;
     for(x = 0; x < (ppm->height * ppm->width); x++) {
@@ -98,9 +104,16 @@ int arrayPositionToMatrixPosition(
 }
 
 PPM * ppmGaussianSmoothFilter( PPM * ppm ) {
+
+/*Aplica o filtro Gaussian com a matriz indicada no pdf base de 5x5, necessária para remoção de imperfeições. 
+Nota-se sempre a utilização apenas de um ponteiro como referência onde a struct abrange todas as informações 
+necessárias. */
+
+
     int x, nx, y, col, ncol, row, newpx;
     Pixel * px;
     int sum, div;
+
 
     int kernel[25] = {2,  4,  5,  4, 2,\
                       4,  9, 12,  9, 4,\
