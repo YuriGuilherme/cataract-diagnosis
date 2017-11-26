@@ -81,15 +81,24 @@ void colorToGrayscale(PPM * ppm) {
     }
 }
 
-Pixel * image_read_pixel(PPM * ppm, int x) {
-    if( x >= (ppm->height * ppm->width) ) x = (ppm->height * ppm->width) - 1;
-    if( x < 0 ) x = 0;
+Pixel * image_read_pixel(PPM * ppm, int col, int row) {
+  if( col >= ppm->width ) col = ppm->width - 1;
+  if( row >= ppm->height ) row = ppm->height - 1;
+  if( col < 0 ) col = 0;
+  if( row < 0 ) row = 0;
+  int x = ((row* ppm->width)+col);
+  return &ppm->pixels[x];
+}
 
-    return &ppm->pixels[x];
+int arrayPositionToMatrixPosition(
+    int x,
+    int y,
+    int width) {
+  return ((x * width) + y);
 }
 
 PPM * ppmGaussianSmoothFilter( PPM * ppm ) {
-    int x, y, col, row, newpx;
+    int x, nx, y, col, ncol, row, newpx;
     Pixel * px;
     int sum, div;
 
@@ -100,17 +109,21 @@ PPM * ppmGaussianSmoothFilter( PPM * ppm ) {
                       2,  4,  5,  4, 2};
 
     /* Debug */
-    printf( "Filtrando Imagem: tipo=P3; width=%d; height=%d\n", ppm->width, ppm->height );
+    /* printf( "Filtrando Imagem: tipo=P3; width=%d; height=%d\n", ppm->width, ppm->height ); */
 
     PPM * newimg = newPPM( ppm->comment ,ppm->width, ppm->height, ppm->maxColor );
 
     for(col = 0; col < (ppm->height * ppm->width); col++) {
         sum = 0;
         div = 0;
-
+        row = (int) col / ppm->width;
+        ncol = col - (row * ppm->width);
         for(x = 0; x < 25; x++) {
-            px = image_read_pixel( ppm,  (col + ((x - ((2 * ppm->width)+2)))));
-            sum += ( px->red *  kernel[x] );
+            y = (int) x / 5;
+            nx = x - (y * 5);
+
+            px = image_read_pixel( ppm, ncol + (nx-2), row + (y-2));
+            sum += ( px->red *  kernel[x]);
             div += kernel[x];
         }
 
@@ -124,12 +137,65 @@ PPM * ppmGaussianSmoothFilter( PPM * ppm ) {
     return newimg;
 }
 
+int mod(int x) {
+  return x>=0?x:-x;
+}
+
+static float sobel_x[9]={-1,  0,  1,
+                         -2,  0,  2,
+                         -1,  0,  1};
+
+static float sobel_y[9]={ 1,  2,  1,
+                          0,  0,  0,
+                         -1, -2, -1 };
+PPM * ppmSobelSmoothFilter( PPM * ppm ) {
+  int dx, dy, val, y, x, k, col;
+  int w = ppm->width;
+
+  PPM * newppm = newPPM( ppm->comment, ppm->width, ppm->height, ppm->maxColor );
+  Pixel * p = ppm->pixels;
+
+  for ( k=0; k < (ppm->width * ppm->height); k++) {
+    y = (int) k / ppm->width;
+    x = k - (y * ppm->width);
+    if(y!=0 && x!=0 && x!=ppm->width-1 && y!=ppm->height-1) {
+      int v[9] = {
+        p[k+w-1].red, p[k+w].red, p[k+w+1].red,
+        p[k-1].red  , p[k].red  , p[k+1].red,
+        p[k-w-1].red, p[k-w].red, p[k-w+1].red
+      };
+      dx = 0;
+      dy = 0;
+      for(col = 0; col < 9;col++) {
+        dx += v[col] * sobel_x[col];
+        dy += v[col] * sobel_y[col];
+      }
+      val = mod(dx)+mod(dy);
+      newppm->pixels[k].red = val;
+      newppm->pixels[k].green = val;
+      newppm->pixels[k].blue = val;
+    } else {
+      newppm->pixels[k].red = 0;
+      newppm->pixels[k].green = 0;
+      newppm->pixels[k].blue = 0;
+    }
+  }
+
+  return newppm;
+}
+
+/* Atenuação dos valores que não são arestas */
+
+PPM * ppmAtenuation(PPM * ppm) {
+  
+}
+
 PPM * realceArestas(PPM * ppm) {
   PPM * newppm = newPPM(ppm->comment, ppm->width, ppm->height, ppm->maxColor);
   int x;
   for (x = 0; x < (ppm->height * ppm->width); x++) {
     Pixel *p = &(ppm->pixels[x]);
-    if (p->red < 130) {
+    if (p->red < 75) {
       newppm->pixels[x].red = 0;
       newppm->pixels[x].green = 0;
       newppm->pixels[x].blue = 0;

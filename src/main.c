@@ -19,8 +19,11 @@ int main(int argc, char* argv[]) {
   PPM * image_gaussian = ppmGaussianSmoothFilter(image);
   savePPMInFile("bin/gaussian.ppm", image_gaussian);
 
-  PPM * image_binaria = realceArestas(image);
-  savePPMInFile("bin/binaria.ppm", image_binaria);
+  PPM * image_sobel = ppmSobelSmoothFilter(image_gaussian);
+  savePPMInFile("bin/sobel_2.ppm", image_sobel);
+
+  PPM * image_binaria = realceArestas(image_sobel);
+  savePPMInFile("bin/binaria.pbm", image_binaria);
 
   PPM * image_binaria_gaussian = realceArestas(image_gaussian);
   savePPMInFile("bin/binaria_gaussian.ppm", image_binaria_gaussian);
