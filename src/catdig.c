@@ -4,43 +4,56 @@
 
 #include "catdig.h"
 
-PPM *newPPM(char * comment, int width, int height, int maxColor) {
-    PPM *ppm = (PPM *) malloc(sizeof(PPM));
-    ppm->pixels = (Pixel *) malloc(width * height * sizeof(Pixel));
-    ppm->comment = malloc(sizeof(char) * 100);
-    ppm->comment = comment;
-    ppm->width = width;
-    ppm->height = height;
-    ppm->maxColor = maxColor;
-    return ppm;
+/* https://www.youtube.com/watch?v=e2QIFGpE0Lo&list=PL4_SsHNp9R6cf6pDTSSmz2XUWUh4Z7Hck&index=13 */
+void __init__(int argc, char* argv[]) {
+
 }
 
-void cleanPPM(PPM * ppm) { // Desaloca os ponteiros ppm e variável responsável usando o "free".
+PPM *newPPM(int width, int height, int maxColor) {
+  PPM *ppm = (PPM *) malloc(sizeof(PPM));
+  ppm->pixels = (Pixel *) malloc(width * height * sizeof(Pixel));
+  ppm->comment = malloc(sizeof(char) * 100);
+  ppm->comment = "#Genereted by catdig";
+  ppm->width = width;
+  ppm->height = height;
+  ppm->maxColor = maxColor;
+  return ppm;
+}
+
+void applyInRGB(int color, Pixel* pixel) {
+  pixel->red = color;
+  pixel->green = color;
+  pixel->blue = color;
+}
+
+void cleanPPM(PPM * ppm) {
+  /* Desaloca os ponteiros ppm e variável responsável usando o "free". */
     free(ppm->pixels);
     free(ppm);
 }
 
-void savePPMInFile(const char *file_name, PPM *ppm) { //Joga seus valores no arquivo 'file' ordenadamente na sequencia RGB. 
+void savePPMInFile(const char *file_name, PPM *ppm) {
+  /* Joga seus valores no arquivo 'file' ordenadamente na sequencia RGB. */
     FILE * file = fopen(file_name, "w+");
     fprintf(file, "P3\n%d %d\n%d", ppm->width, ppm->height, ppm->maxColor);
 
     int x;
     printf(ppm->comment);
     for(x = 0; x < (ppm->height * ppm->width); x++) {
-        Pixel *p = &(ppm->pixels[x]);
-        fprintf(file, "\n%d %d %d", p->red, p->green, p->blue);
+        Pixel* pixel = &(ppm->pixels[x]);
+        fprintf(file, "\n%d %d %d", pixel->red, pixel->green, pixel->blue);
     }
 }
 
-PPM *openFile(const char *file_name) { 
+PPM *openFile(const char *file_name) {
 
-/* Processo de abertura e leitura da foto propriamente dita. 
+/* Processo de abertura e leitura da foto propriamente dita.
 Essa função lê cada dado da foto e aplica na struct PPM criada no ínicio. */
 
     FILE *file = fopen(file_name, "r");
 
 
-    if (file == NULL) return NULL; // Processo de debug da abertura do arquivo.
+    if (file == NULL) return NULL;/* Processo de debug da abertura do arquivo. */
 
     char format[4];
     fscanf(file, "%s\n", format);
@@ -54,13 +67,13 @@ Essa função lê cada dado da foto e aplica na struct PPM criada no ínicio. */
         fscanf(file, "%d", &(width));
         fscanf(file, "%d", &(height));
         fscanf(file, "%d", &(maxColor));
-        PPM *ppm = newPPM(comment, width, height, maxColor);
+        PPM *ppm = newPPM(width, height, maxColor);
         int x;
         for (x = 0; x < (height * width); x++) {
-            Pixel *p = &(ppm->pixels[x]);
-            fscanf(file, "%d", &(p->red));
-            fscanf(file, "%d", &(p->green));
-            fscanf(file, "%d", &(p->blue));
+            Pixel* pixel = &(ppm->pixels[x]);
+            fscanf(file, "%d", &(pixel->red));
+            fscanf(file, "%d", &(pixel->green));
+            fscanf(file, "%d", &(pixel->blue));
         }
         fclose(file);
         printf(ppm->comment);
@@ -72,19 +85,26 @@ Essa função lê cada dado da foto e aplica na struct PPM criada no ínicio. */
 
 
 
-void colorToGrayscale(PPM * ppm) {
+PPM * colorToGrayscale(PPM * ppm) {
 
-/* Adiciona a cada variável da struct as diretrizes para transfomar o arquivo em escala de cinza. +30% R, + %59 G, %11 B.*/
+  /* Adiciona a cada variável da struct as diretrizes para transfomar o arquivo em escala de cinza. +30% R, + %59 G, %11 B.*/
 
-    int x;
-    int brightness;
-    for(x = 0; x < (ppm->height * ppm->width); x++) {
-        Pixel *p = &(ppm->pixels[x]);
-        brightness = (int) (p->red * 0.3) + (p->green * 0.59) + (p->blue * 0.11);
-        p->red = brightness;
-        p->green = brightness;
-        p->blue = brightness;
-    }
+  int brightness, x;
+
+  PPM* newppm = newPPM(
+    ppm->width,
+    ppm->height,
+    ppm->maxColor
+  );
+
+  for(x = 0; x < (ppm->height * ppm->width); x++) {
+
+    Pixel* pixel = &(ppm->pixels[x]);
+    brightness = (int) (pixel->red * 0.3) + (pixel->green * 0.59) + (pixel->blue * 0.11);
+
+    applyInRGB(brightness, &newppm->pixels[x]);
+  }
+  return newppm;
 }
 
 Pixel * image_read_pixel(PPM * ppm, int col, int row) {
@@ -94,13 +114,6 @@ Pixel * image_read_pixel(PPM * ppm, int col, int row) {
   if( row < 0 ) row = 0;
   int x = ((row* ppm->width)+col);
   return &ppm->pixels[x];
-}
-
-int arrayPositionToMatrixPosition(
-    int x,
-    int y,
-    int width) {
-  return ((x * width) + y);
 }
 
 PPM * ppmGaussianSmoothFilter( PPM * ppm ) {
@@ -124,7 +137,11 @@ necessárias. */
     /* Debug */
     /* printf( "Filtrando Imagem: tipo=P3; width=%d; height=%d\n", ppm->width, ppm->height ); */
 
-    PPM * newimg = newPPM( ppm->comment ,ppm->width, ppm->height, ppm->maxColor );
+    PPM * newimg = newPPM(
+      ppm->width,
+      ppm->height,
+      ppm->maxColor
+    );
 
     for(col = 0; col < (ppm->height * ppm->width); col++) {
         sum = 0;
@@ -142,9 +159,7 @@ necessárias. */
 
         newpx = (int) sum / div;
 
-        newimg->pixels[col].red = newpx;
-        newimg->pixels[col].green = newpx;
-        newimg->pixels[col].blue = newpx;
+        applyInRGB(newpx, &newimg->pixels[col]);
     }
 
     return newimg;
@@ -165,7 +180,12 @@ PPM * ppmSobelSmoothFilter( PPM * ppm ) {
   int dx, dy, val, y, x, k, col;
   int w = ppm->width;
 
-  PPM * newppm = newPPM( ppm->comment, ppm->width, ppm->height, ppm->maxColor );
+  PPM * newppm = newPPM(
+    ppm->width,
+    ppm->height,
+    ppm->maxColor
+  );
+
   Pixel * p = ppm->pixels;
 
   for ( k=0; k < (ppm->width * ppm->height); k++) {
@@ -184,13 +204,10 @@ PPM * ppmSobelSmoothFilter( PPM * ppm ) {
         dy += v[col] * sobel_y[col];
       }
       val = mod(dx)+mod(dy);
-      newppm->pixels[k].red = val;
-      newppm->pixels[k].green = val;
-      newppm->pixels[k].blue = val;
+
+      applyInRGB(val, &newppm->pixels[k]);
     } else {
-      newppm->pixels[k].red = 0;
-      newppm->pixels[k].green = 0;
-      newppm->pixels[k].blue = 0;
+      applyInRGB(0, &newppm->pixels[k]);
     }
   }
 
@@ -199,25 +216,78 @@ PPM * ppmSobelSmoothFilter( PPM * ppm ) {
 
 /* Atenuação dos valores que não são arestas */
 
-PPM * ppmAtenuation(PPM * ppm) {
-  
+void calculateHistogram(PPM * ppm, int histogram[]) {
+  int x;
+  int brightness;
+
+  for( x = 0; x < 255; x++) {
+    histogram[x] = 0;
+  }
+
+  for( x = 0; x < (ppm->height * ppm->width); x++) {
+    Pixel * pixel = &ppm->pixels[x];
+    histogram[pixel->red]++;
+  }
 }
 
-PPM * realceArestas(PPM * ppm) {
-  PPM * newppm = newPPM(ppm->comment, ppm->width, ppm->height, ppm->maxColor);
+
+PPM * binarizacao(PPM * ppm) {
   int x;
-  for (x = 0; x < (ppm->height * ppm->width); x++) {
-    Pixel *p = &(ppm->pixels[x]);
-    if (p->red < 75) {
-      newppm->pixels[x].red = 0;
-      newppm->pixels[x].green = 0;
-      newppm->pixels[x].blue = 0;
-    } else {
-      newppm->pixels[x].red = 1;
-      newppm->pixels[x].green = 1;
-      newppm->pixels[x].blue = 1;
-    }
-    newppm->maxColor = 1;
+  int histogram[255];
+  float proportion[255], omega[255], mu[255];
+  int threshold;
+  float sigma ,maxSigma;
+  puts("init ok");
+  /* Calculado o histograma da imagem */
+  calculateHistogram(ppm, histogram);
+  puts("histogram ok");
+  /* Calculando a proporção de uma cor na imagem */
+  for( x = 0; x < 255; x++) {
+    proportion[x] = (float) histogram[x] / (ppm->height * ppm->width);
   }
-    return newppm;
+  puts("proportion ok");
+
+  /* Calculando omega e mu */
+  omega[0] = proportion[0];
+  mu[0] = 0.0;
+  for(x = 1; x <= 255; x++) {
+    omega[x] = omega[x-1] + proportion[x];
+    mu[x] = mu[x - 1] + (x * proportion[x]);
+  }
+  puts("omega ok");
+
+  /* Calculando e achando o maior sigma */
+  threshold = 0;
+  maxSigma = 0.0;
+  for( x = 0; x < 255; x++) {
+    sigma = 0.0;
+
+    if( omega[x] >= 0.0 && omega[x] <= 1.0) {
+      float numerador = mu[255] * omega[x] - mu[x];
+      float quociente = omega[x] * (1.0f - omega[x]);
+      sigma = (numerador * numerador) / quociente;
+    }
+    if( sigma > maxSigma) {
+      maxSigma = sigma;
+      threshold = x;
+    }
+  }
+
+  PPM * newppm = newPPM(
+    ppm->width,
+    ppm->height,
+    1 /* maxColor */
+  );
+
+
+  for (x = 0; x < (ppm->height * ppm->width); x++) {
+    if (ppm->pixels[x].red <= threshold) {
+      applyInRGB(0, &newppm->pixels[x]);
+    } else {
+      applyInRGB(1, &newppm->pixels[x]);
+    }
+  }
+
+  puts("Deu tudo certo");
+  return newppm;
 }

@@ -3,31 +3,45 @@
 
 #include "catdig.h"
 
-int main(int argc, char* argv[]) {
+void main(int argc, char* argv[]) {
+
+
+  /* This function is responsible for executing the program
+   *
+   *@params
+   *  int argc  -> Number of arguments
+   *  char argv -> List of arguments and flags
+   *
+   *#flags
+   *  -i <file_name>  -> To input file
+   *  -o <file_name>  -> To output file
+   *  -f <forma_name> -> Name of format (Ex.: PPM or BPM)
+   */
+
+  __init__(argc, argv);
 
   PPM *image = openFile(argv[2]);
-  if (image == NULL) {
+  if (image == NULL)
     printf("Arquivo não é um PPM P3 ou não existe");
-    return 1;
-  }
 
   savePPMInFile("bin/normal.ppm", image);
 
-  colorToGrayscale(image);
-  savePPMInFile("bin/cinza.ppm", image);
+  PPM * image_grey = colorToGrayscale(image);
+  cleanPPM(image);
+  savePPMInFile("bin/cinza.ppm", image_grey);
 
-  PPM * image_gaussian = ppmGaussianSmoothFilter(image);
+  PPM * image_gaussian = ppmGaussianSmoothFilter(image_grey);
+  cleanPPM(image_grey);
   savePPMInFile("bin/gaussian.ppm", image_gaussian);
 
   PPM * image_sobel = ppmSobelSmoothFilter(image_gaussian);
+  cleanPPM(image_gaussian);
   savePPMInFile("bin/sobel_2.ppm", image_sobel);
 
-  PPM * image_binaria = realceArestas(image_sobel);
-  savePPMInFile("bin/binaria.pbm", image_binaria);
+  PPM * image_binaria = binarizacao(image_gaussian);
+  puts("Binario gerado");
+  savePPMInFile("bin/binaria.ppm", image_binaria);
 
-  PPM * image_binaria_gaussian = realceArestas(image_gaussian);
-  savePPMInFile("bin/binaria_gaussian.ppm", image_binaria_gaussian);
-
-  cleanPPM(image);
-  return 0;
+  cleanPPM(image_sobel);
+  cleanPPM(image_binaria);
 }
