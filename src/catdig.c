@@ -30,6 +30,7 @@ void applyInRGB(int color, Pixel* pixel) {
   pixel->blue = color;
 }
 
+<<<<<<< Updated upstream
 
 void cleanPPM(PPM * ppm) {
   /* Desaloca os ponteiros ppm e variável responsável usando o "free". */
@@ -43,6 +44,14 @@ void savePPMInFile(const char *file_name, PPM *ppm) {
 
     int x;
 
+=======
+void cleanPPM(PPM * ppm) { /* Desaloca os ponteiros ppm e variável responsável usando o "free". */
+    free(ppm->pixels);
+    free(ppm);
+}
+
+void savePPMInFile(const char *file_name, PPM *ppm) { /*Joga seus valores no arquivo 'file' ordenadamente na sequencia RGB. */ 
+>>>>>>> Stashed changes
     FILE * file = fopen(file_name, "w+");
 
     fprintf(file, "P3\n%d %d\n%d", ppm->width, ppm->height, ppm->maxColor);
@@ -68,7 +77,11 @@ PPM *openFile(const char *file_name) {
 
   if (file == NULL) return NULL;/* Processo de debug da abertura do arquivo. */
 
+<<<<<<< Updated upstream
   fscanf(file, "%s\n", format);
+=======
+    if (file == NULL) return NULL; /* Processo de debug da abertura do arquivo.*/
+>>>>>>> Stashed changes
 
   if (strcmp("P3", format) == 0) {
 
@@ -251,6 +264,7 @@ PPM * ppmSobelSmoothFilter( PPM * ppm ) {
 }
 
 
+/* <<<<<<< Updated upstream */
 void calculateHistogram(PPM * ppm, int histogram[]) {
   int x;
 
@@ -263,6 +277,9 @@ void calculateHistogram(PPM * ppm, int histogram[]) {
     histogram[pixel->red]++;
   }
 }
+/*=======*/
+
+/* >>>>>>> Stashed changes */
 
 
 PPM * binarizacao(PPM * ppm) {
