@@ -13,23 +13,25 @@ typedef struct PPM {
   Pixel * pixels;
 } PPM;
 
-typedef enum {ppm} inputFormat;
-
 
 void __init__(int argc, char* argv[]);
 
-PPM *newPPM(
-  int width,
-  int heigth,
-  int maxColor
-);
-void cleanPPM(PPM * ppm);
-void savePPMInFile(const char *file_name, PPM *ppm);
 PPM *openFile(const char *file_name);
+
+PPM *newPPM(int width, int heigth, int maxColor);
+
+void savePPMInFile(const char *file_name, PPM *ppm);
+
+void cleanPPM(PPM * ppm);
+
 PPM * colorToGrayscale(PPM * ppm);
-Pixel * image_read_pixel(PPM * ppm, int col, int row);
+
 PPM * ppmGaussianSmoothFilter( PPM * ppm );
-PPM * ppmSobelSmoothFilter( PPM * ppm );
+
 PPM * binarizacao(PPM * ppm);
 
-#endif /* CATDIG_H */
+PPM * ppmSobelSmoothFilter( PPM * ppm );
+
+PPM * neighborhoodAnalysis(PPM * ppm);
+
+#endif
