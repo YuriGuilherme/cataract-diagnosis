@@ -1,4 +1,4 @@
-# cataract-diagnosis
+# Cataract Diagnosis
 > Projeto da UFRN, disciplina de ITP, para diagnostico de catarata usando linguagem C.
 
 [![NPM Version][npm-image]][npm-url]
