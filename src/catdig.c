@@ -263,8 +263,6 @@ PPM * ppmSobelSmoothFilter( PPM * ppm ) {
   return newppm;
 }
 
-
-/* <<<<<<< Updated upstream */
 void calculateHistogram(PPM * ppm, int histogram[]) {
   int x;
 
@@ -277,10 +275,6 @@ void calculateHistogram(PPM * ppm, int histogram[]) {
     histogram[pixel->red]++;
   }
 }
-/*=======*/
-
-/* >>>>>>> Stashed changes */
-
 
 PPM * binarizacao(PPM * ppm) {
   int x;
