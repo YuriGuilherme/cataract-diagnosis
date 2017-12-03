@@ -10,7 +10,7 @@ que através de uma imagem fornecida pelo usuário consegue identificar e diagno
 utilizados precisam estar no formato `.ppm`
 
 
-![](../header.jpeg)
+![](../header.png)
 
 ## Instalação
 
@@ -20,20 +20,20 @@ Linux:
 git clone https://github.com/YuriGuilherme/cataract-diagnosis.git
 ```
 
-
-## Exemplo de uso
-
-Alguns exemplos interessantes e úteis sobre como seu projeto pode ser utilizado. Adicione blocos de códigos e, se necessário, screenshots.
-
 ## Configuração para Desenvolvimento
 
-Descreva como instalar todas as dependências para desenvolvimento e como rodar um test-suite automatizado de algum tipo. Se necessário, faça isso para múltiplas plataformas.
+Pelo tipo de versionamento ser colocado no [Github](github.com), a clonagem do repositório instruído no tópico de instalação já fornece todos os arquivos necessário para o desenvolvimento.  
 
 ```sh
 cd ./cataract-diagnosis
 make clean
 make all
-bin/catdig -i images/image.ppm
+```
+
+Para execução teste:
+
+```sh
+bin/catdig -i images/imagemexemplo.ppm
 ```
 
 ## Histórico de lançamentos
@@ -57,6 +57,7 @@ bin/catdig -i images/image.ppm
 ## Meta
 
 Yuri Guilherme – [@YuriGuilherme](https://www.facebook.com/yuri.g.moura) – SeuEmail@exemplo.com
+
 Erick Medeiros – [@thecogmel](https://www.facebook.com/TheCogmel) – erick_mmedeiros@hotmail.com
 
 Distribuído sob a licença MIT. Veja `LICENSE` para mais informações.
