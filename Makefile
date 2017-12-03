@@ -1,6 +1,6 @@
 include config.mk
 
-SRC = src/main.c src/catdig.c
+SRC = src/main.c src/catdig.c src/help.c
 OBJ = $(SRC:.c=.o)
 
 all: catdig

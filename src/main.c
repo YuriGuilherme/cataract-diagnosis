@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include "catdig.h"
+#include "help.h"
 
 int main(int argc, char* argv[]) {
 
