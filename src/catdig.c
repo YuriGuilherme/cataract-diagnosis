@@ -3,9 +3,61 @@
 #include <string.h>
 
 #include "catdig.h"
+#include "help.h"
+
+enum flags {input, output, format};
+
+typedef struct {
+  int * input;
+  int * output;
+  int * format;
+} Init;
 
 void __init__(int argc, char* argv[]) {
+  int x, i;
 
+  int flag;
+  Init *init;
+
+  for(x = 0; x < argc; x++) {
+    if(argv[x][0] == '-') {
+      i = 0;
+      switch(argv[x][1]) {
+        case 'i':
+          puts("input");
+          flag = input;
+          break;
+        case 'f':
+          puts("format");
+          flag = format;
+          break;
+        case 'o':
+          puts("output");
+          flag = output;
+          break;
+        default:
+          info();
+          break;
+      }
+    } else {
+      switch(flag){
+        case input:
+          init->input[i] = argv[x];
+          i++;
+          break;
+        case format:
+          init->format[i] = argv[x];
+          i++;
+          break;
+        case output:
+          init->output[i] = argv[x];
+          i++;
+          break;
+        default:
+          break;
+      }
+    }
+  }
 }
 
 
@@ -30,7 +82,6 @@ void applyInRGB(int color, Pixel* pixel) {
   pixel->blue = color;
 }
 
-<<<<<<< Updated upstream
 
 void cleanPPM(PPM * ppm) {
   /* Desaloca os ponteiros ppm e variável responsável usando o "free". */
@@ -44,14 +95,6 @@ void savePPMInFile(const char *file_name, PPM *ppm) {
 
     int x;
 
-=======
-void cleanPPM(PPM * ppm) { /* Desaloca os ponteiros ppm e variável responsável usando o "free". */
-    free(ppm->pixels);
-    free(ppm);
-}
-
-void savePPMInFile(const char *file_name, PPM *ppm) { /*Joga seus valores no arquivo 'file' ordenadamente na sequencia RGB. */ 
->>>>>>> Stashed changes
     FILE * file = fopen(file_name, "w+");
 
     fprintf(file, "P3\n%d %d\n%d", ppm->width, ppm->height, ppm->maxColor);
@@ -77,11 +120,7 @@ PPM *openFile(const char *file_name) {
 
   if (file == NULL) return NULL;/* Processo de debug da abertura do arquivo. */
 
-<<<<<<< Updated upstream
   fscanf(file, "%s\n", format);
-=======
-    if (file == NULL) return NULL; /* Processo de debug da abertura do arquivo.*/
->>>>>>> Stashed changes
 
   if (strcmp("P3", format) == 0) {
 
@@ -263,6 +302,7 @@ PPM * ppmSobelSmoothFilter( PPM * ppm ) {
   return newppm;
 }
 
+
 void calculateHistogram(PPM * ppm, int histogram[]) {
   int x;
 
@@ -275,6 +315,7 @@ void calculateHistogram(PPM * ppm, int histogram[]) {
     histogram[pixel->red]++;
   }
 }
+
 
 PPM * binarizacao(PPM * ppm) {
   int x;
