@@ -12,7 +12,7 @@ $(ID): $(ID).c
 	$(CC) $(CFLAGS) -o $@ $< $(LIBS)
 
 clean:
-	@rm -rf bin/* $(OBJ) src/*~
+	@rm -rf bin/* ./*ppm $(OBJ) src/*~
 
 install: all
 	@install -D bin/catdig /bin/
