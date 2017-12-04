@@ -6,6 +6,10 @@
 #include "help.h"
 
 void __init__(int argc, char* argv[]) {
+
+/* Parte inicial que trata o processo de entrada do arquivo, formato e saída. 
+
+Utiliza-se o switch case para facilitar o entendimento e sintetização do processo.*/
   int x;
   int current_flag = NULL;
 
@@ -158,7 +162,7 @@ void savePPMInFile(const char *file_name, PPM *ppm) {
 
 PPM *openFile(const char *file_name) {
   /*  Processo de abertura e leitura da foto propriamente dita.
-   *  Essa função lê cada dado da foto e aplica na struct PPM criada no ínicio. */
+      Essa função lê cada dado da foto e aplica na struct PPM criada no ínicio. */
 
   int x;
   char format[4];
@@ -166,7 +170,7 @@ PPM *openFile(const char *file_name) {
 
   FILE *file = fopen(file_name, "r");
 
-  if (file == NULL) return NULL;/* Processo de debug da abertura do arquivo. */
+  if (file == NULL) return NULL; /* Processo de debug da abertura do arquivo. */
 
   fscanf(file, "%s\n", format);
 
@@ -240,7 +244,7 @@ static int filter_gaussian[25] = {2,  4,  5,  4, 2,\
 
 PPM * ppmGaussianSmoothFilter( PPM * ppm ) {
   /* Aplica o filtro Gaussian com a matriz indicada no pdf base de 5x5, necessária para remoção de imperfeições.
-   * Nota-se sempre a utilização apenas de um ponteiro como referência onde a struct abrange todas as informações
+     Nota-se sempre a utilização apenas de um ponteiro como referência onde a struct abrange todas as informações
 necessárias. */
 
   int x, nx, y, col, ncol, row, newpx;
@@ -296,6 +300,9 @@ static float sobel_y[9]={ 1,  2,  1,
 
 
 PPM * ppmSobelSmoothFilter( PPM * ppm ) {
+
+/* Aplicação do filtro de sobel. Informações base:https://pt.wikipedia.org/wiki/Filtro_Sobel */
+
   int dx, dy, val, y, x, k, col;
   int w = ppm->width;
 
@@ -366,6 +373,12 @@ void calculateHistogram(PPM * ppm, int histogram[]) {
 
 
 PPM * binarizacao(PPM * ppm) {
+
+/* Processo que "separa" a imagem desejada do fundo indesejado. 
+O processo, através de um ponto de corte (threshold) que é calculado na própria função, seta 0 (branco) para o que não será desejado 
+e 1 (preto) para o que é desejado de acordo com a frequência que o píxel de corte aparecer na imagem. 
+Processo de escala de cinza e Sobel já feito é crucial para eficácia da identificação de arestas. */
+
   int x;
   int histogram[255];
   float proportion[255], omega[255], mu[255];
@@ -425,6 +438,10 @@ PPM * binarizacao(PPM * ppm) {
 }
 
 PPM * neighborhoodAnalysis(PPM * ppm) {
+
+/* Função de para checagem dos pixel vizinhos, necessária  
+pois com isso basicamente inicia o processo para identificação da pupila. */
+  
   int x;
   int v[3];
   int w = ppm->width;
