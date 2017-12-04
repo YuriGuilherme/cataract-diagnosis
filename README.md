@@ -10,7 +10,7 @@ que através de uma imagem fornecida pelo usuário consegue identificar e diagno
 utilizados precisam estar no formato `.ppm`
 
 
-![](../header.png)
+![](header.png)
 
 ## Instalação
 
