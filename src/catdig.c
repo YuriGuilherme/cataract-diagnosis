@@ -5,59 +5,107 @@
 #include "catdig.h"
 #include "help.h"
 
-enum flags {input, output, format};
-
-typedef struct {
-  int * input;
-  int * output;
-  int * format;
-} Init;
-
 void __init__(int argc, char* argv[]) {
-  int x, i;
+  int x;
+  int current_flag = NULL;
 
-  int flag;
-  Init *init;
+  Arg * args = (Arg *) malloc(sizeof(Arg));
+  args->input_name = malloc(sizeof(argc));
+  args->input_length = 0;
 
   for(x = 0; x < argc; x++) {
     if(argv[x][0] == '-') {
-      i = 0;
       switch(argv[x][1]) {
         case 'i':
-          puts("input");
-          flag = input;
+          puts("input files:");
+          current_flag = input;
           break;
         case 'f':
-          puts("format");
-          flag = format;
+          puts("format:");
+          current_flag = format;
           break;
         case 'o':
-          puts("output");
-          flag = output;
+          puts("output files:");
+          current_flag = output;
           break;
         default:
           info();
           break;
       }
     } else {
-      switch(flag){
-        case input:
-          init->input[i] = argv[x];
-          i++;
-          break;
-        case format:
-          init->format[i] = argv[x];
-          i++;
-          break;
-        case output:
-          init->output[i] = argv[x];
-          i++;
-          break;
-        default:
-          break;
+      if(current_flag != NULL) {
+        switch(current_flag) {
+          case input:
+            args->input_name[args->input_length] = argv[x];
+            args->input_length++;
+            break;
+          case format:
+            args->format_name = argv[x];
+            break;
+          case output:
+            args->output_name = argv[x];
+            break;
+        }
       }
     }
   }
+
+  for (x = 0; x < args->input_length; x++) {
+    printf("%d: %s, format: %s, output: %s\n",x, args->input_name[x], args->format_name, args->output_name);
+    exec(args->input_name[x], args->output_name, args->format_name);
+  }
+}
+
+static int exec_counter = 0;
+
+float exec(char * input_name, char * output_name, char * format_name) {
+    PPM *src_image = openFile(input_name);
+
+    PPM *out_image;
+
+    if(format_name == NULL) {
+      format_name = "PPM";
+    }
+    
+    if(output_name == NULL) {
+      output_name = "_catdig_diagnosis.txt";
+    }
+
+    if (src_image == NULL)
+      printf("Arquivo não é um PPM P3 ou não existe");
+
+    char buf[256];
+    char counter[10];
+    sprintf(counter, "%d", exec_counter);
+    snprintf(buf, sizeof buf, "%s%s",counter,"_normal.ppm");
+
+    savePPMInFile(buf, src_image);
+  
+    snprintf(buf, sizeof buf, "%s%s",counter,"_cinza.ppm");
+    out_image = colorToGrayscale(src_image);
+    savePPMInFile(buf, out_image);
+    
+    snprintf(buf, sizeof buf, "%s%s",counter,"_gaussian.ppm");
+    out_image= ppmGaussianSmoothFilter(out_image);
+    savePPMInFile(buf, out_image);
+  
+    snprintf(buf, sizeof buf, "%s%s",counter,"_binaria.ppm");
+    out_image = binarizacao(out_image);
+    savePPMInFile(buf, out_image);
+  
+    snprintf(buf, sizeof buf, "%s%s",counter,"_sobel.ppm");
+    out_image = ppmSobelSmoothFilter(out_image);
+    savePPMInFile(buf, out_image);
+  
+    snprintf(buf, sizeof buf, "%s%s",counter,"_object.ppm");
+    out_image = neighborhoodAnalysis(out_image);
+    savePPMInFile(buf, out_image);
+
+    cleanPPM(src_image);
+    cleanPPM(out_image);
+    
+    exec_counter++;
+    return 0.2;
 }
 
 
@@ -98,7 +146,7 @@ void savePPMInFile(const char *file_name, PPM *ppm) {
     FILE * file = fopen(file_name, "w+");
 
     fprintf(file, "P3\n%d %d\n%d", ppm->width, ppm->height, ppm->maxColor);
-
+    
     for(x = 0; x < (ppm->height * ppm->width); x++) {
         Pixel* pixel = &(ppm->pixels[x]);
         fprintf(file, "\n%d %d %d", pixel->red, pixel->green, pixel->blue);
